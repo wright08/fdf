@@ -1,36 +1,38 @@
-NAME = fdf
-LIB = libft.a
-LIB_DIR = lib
-CFLAGS = -Wall -Werror -Wextra
-CFLAGS += #-g -fsanitize=address
-INC = -I inc -I $(LIB_DIR)/inc
-SRC_DIR = src
-OBJ_DIR = obj
+NAME	= fdf
+CFLAGS	= -Wall -Werror -Wextra
+CFLAGS	+= #-g -fsanitize=address
+LDFLAGS	= -Llibft -lft -Llibmlx -lmlx -framework OpenGL -framework AppKit
+INC		= -I inc -I libft/inc -I libmlx
+SRC_DIR	= src
+OBJ_DIR	= obj
 
 SRC = \
 	  fdf
 
 OBJ = $(patsubst %, $(OBJ_DIR)/%.o, $(SRC))
 
-all: checker push_swap
+all: $(NAME)
 
-$(NAME): $(OBJ)
-	gcc $(OBJ) $(LIB) -o $(NAME)
+$(NAME): $(OBJ) lib
+	@gcc $(OBJ) $(LDFLAGS) -o $(NAME)
+
+lib:
+	@make -sC libft
+	@make -sC libmlx
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
-	gcc $(CFLAGS) $(INC) -o $@ -c $< 
-
-$(LIB_DIR)/$(LIB):
-	@make -sC $(LIB_DIR)
+	@gcc $(CFLAGS) $(INC) -o $@ -c $< 
 
 clean:
-	@make -sC $(LIB_DIR) $@
+	@make -sC libft $@
+	@make -sC libmlx $@
 	@rm -rf $(OBJ_DIR)
 
 fclean: clean
-	@make -sC $(LIB_DIR) $@
-	@rm -f checker
-	@rm -f push_swap
+	@make -sC libft $@
+	@rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: lib
